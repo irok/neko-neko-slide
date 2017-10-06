@@ -385,12 +385,14 @@
     if (score < 0) {
       score = 0;
     }
-    // 最終ステージ
-    if (state.getLastStage < state.game.stage) {
-      state.getLastStage = state.game.stage;
+
+    // 最終ステージ更新
+    var lastStage = state.getLastStage();
+    if (lastStage < state.game.stage) {
+      lastStage = state.game.stage;
     }
 
-    state.saveUserData(state.getLastStage, score, function() {
+    state.saveUserData(lastStage, score, function() {
       animFlush($board, function() {
         animClear(function() {
           animScore(function() {
