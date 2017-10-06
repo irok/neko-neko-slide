@@ -41,6 +41,9 @@
     return this.loadCount === this.length;
   };
 
+  // クリックイベント
+  var CLICK_EVENT = 'mousedown touchstart'
+
   // ======================================================
   // 各種状態
   //
@@ -165,7 +168,7 @@
         this.game.board.panels = [];
         this.game.score = {
           score: 0,
-          time: this.game.board.count * 20,
+          time: this.game.board.count * 30 + stage * 10,
           move: 0
         };
         this.game.timerId = null;
@@ -342,9 +345,9 @@
     util.changePage('game', function() {
       util.shield.on();
       util.serial([
-        [900, animShuffle],
-        [1000, animReady],
-        [2000, animStart],
+        [1200, animReady],
+        [2000, animShuffle],
+        [800, animStart],
         [500, function() {
           util.shield.off();
           gameMain();
@@ -382,11 +385,16 @@
     if (score < 0) {
       score = 0;
     }
-    state.saveUserData(state.game.stage, score, function() {
+    // 最終ステージ
+    if (state.getLastStage < state.game.stage) {
+      state.getLastStage = state.game.stage;
+    }
+
+    state.saveUserData(state.getLastStage, score, function() {
       animFlush($board, function() {
         animClear(function() {
           animScore(function() {
-            $page.shield.one('click', showStageSelect);
+            $page.shield.one(CLICK_EVENT, showStageSelect);
           });
         });
       });
@@ -399,7 +407,7 @@
     gameEnd();
 
     animGameOver($board, function() {
-      $page.shield.one('click', showStageSelect);
+      $page.shield.one(CLICK_EVENT, showStageSelect);
     });
   }
 
@@ -640,7 +648,7 @@
       shield: $('#page-shield')
     };
     $title = $('#title-board');
-    $board = $('#game-board').on('click', '.panel', handleClickPanel);
+    $board = $('#game-board').on(CLICK_EVENT, '.panel', handleClickPanel);
     $text = {
       stage: $('#game-stage'),
       score: $('#high-score'),
@@ -654,7 +662,7 @@
     });
 
     // タイトル画面クリックでステージセレクトへ
-    $page.title.on('click', showStageSelect);
+    $page.title.on(CLICK_EVENT, showStageSelect);
 
     // ステージパネルをセット
     for (var stage = 1; stage <= 16; stage++) {
@@ -664,7 +672,7 @@
     }
 
     // ステージパネルクリックでゲーム画面へ
-    $page.select.on('click', '.stage-panel.selectable', function() {
+    $page.select.on(CLICK_EVENT, '.stage-panel.selectable', function() {
       showGame($(this).data('stage'));
     });
 
