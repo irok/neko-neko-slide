@@ -1,0 +1,307 @@
+@charset "utf-8";
+
+@import "~sanitize.css";
+
+$screen-size: 600px;
+$game-board-size: 420px;
+
+@mixin clearfix {
+  &::after {
+    display: block;
+    clear: both;
+    content: "";
+  }
+}
+
+@mixin flush($property) {
+  #{$property}: #fff;
+  transition: $property .5s 0s ease-in;
+}
+
+@mixin clear($property) {
+  transition: $property .5s 0s ease-out;
+}
+
+@mixin auto-alignment($column, $child: '*', $spacing-x: 0, $spacing-y: 0) {
+  font-size: 0;
+
+  & > #{$child} {
+    width: calc((100% - #{$spacing-x * ($column - 1)}) / #{$column});
+    margin-bottom: $spacing-y;
+    vertical-align: top;
+
+    &:not(:nth-of-type(#{$column}n)) {
+      margin-right: $spacing-x;
+    }
+  }
+}
+
+#container {
+  position: relative;
+  width: $screen-size;
+  height: $screen-size;
+  margin: auto;
+  border: 2px solid #000;
+  overflow: hidden;
+}
+
+.page {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#start-msg {
+  position: absolute;
+  left: 50%;
+  bottom: 62px;
+  width: 320px;
+  height: 70px;
+  transform: translate(-50%, 50%);
+  background-image: url("image/start.png");
+  background-size: cover;
+}
+
+#page-select {
+  $size: 40px;
+  @include auto-alignment(4, '.stage-panel', $size, $size);
+  padding: #{$size - 2px};     // border分を引く
+}
+
+.board {
+  position: absolute;
+  top: 48px;
+  left: 50%;
+  width: #{$game-board-size + 2};     // border分を足す
+  height: #{$game-board-size + 2};
+  transform: translateX(-50%);
+  border: 1px solid #000;
+  background-color: #ccc;
+
+  @include clear(background-color);
+
+  &[data-state="flush"] {
+    @include flush(background-color);
+  }
+
+  &[data-state="clear"] {
+    background-color: #fff;
+  }
+
+  &[data-state="gameover"] {
+    transition: all 1.2s 0s linear;
+    filter: grayscale(100%);
+  }
+}
+
+.panel {
+  position: absolute;
+  background-size: $game-board-size, $game-board-size;
+  background-origin: border-box;
+  border: 1px solid #000;
+  transition: all .075s 0s linear;
+
+  &:not(:last-child) {
+    cursor: pointer;
+  }
+
+  &:last-child {
+    opacity: 0;
+  }
+
+  @for $size from 3 through 6 {
+    &-size#{$size} {
+      width: #{$game-board-size / $size};
+      height: #{$game-board-size / $size};
+    }
+  }
+
+  [data-state="flush"] & {
+    @include flush(border-color);
+  }
+
+  [data-state="clear"] & {
+    @include clear(border-color);
+    border-color: transparent;
+
+    &:last-child {
+      @include clear(opacity);
+      opacity: 1;
+    }
+  }
+}
+
+.stage-panel {
+  display: inline-block;
+  border: 2px solid #000;
+  border-radius: 4px;
+  background-color: #e8e8e8;
+  background-size: cover;
+  background-position: 0 0;
+  background-origin: border-box;
+  transition: all .075s 0s ease-out;
+
+  // 高さを確保する
+  &::after {
+    display: block;
+    padding-top: 100%;
+    content: "";
+  }
+
+  &.selectable {
+    cursor: pointer;
+
+    &:hover {
+      $color: #3cf;
+      border-color: $color;
+      box-shadow: 0 0 3px $color;
+      background-color: #f0f0ff;
+      transform: scale(1.1);
+    }
+  }
+}
+
+.game-score {
+  position: absolute;
+  overflow: hidden;
+  top: 490px;
+  left: 50%;
+  width: #{$game-board-size + 2};     // border分を足す
+  height: 86px;
+  transform: translateX(-50%);
+  border: 1px solid #000;
+  padding: 10px 30px;
+  font: bold 20px/1.6 'Lucida Console', 'Courier', monospace;
+  letter-spacing: 3px;
+
+  > div {
+    > span {
+      display: inline-block;
+    }
+
+    &:first-child {
+      float: left;
+
+      > span {
+        margin-left: 15px;
+      }
+    }
+
+    &:last-child {
+      float: right;
+
+      > span {
+        width: 60px;
+        text-align: right;
+      }
+    }
+  }
+}
+
+@keyframes drop-bound {
+  0%   { bottom: 135px; }
+  6%   { bottom: 132px; }
+  12%  { bottom: 126px; }
+  18%  { bottom: 117px; }
+  24%  { bottom: 105px; }
+  30%  { bottom:  90px; }
+  36%  { bottom:  72px; }
+  42%  { bottom:  51px; }
+  48%  { bottom:  27px; }
+  54%  { bottom:   0; }
+  60%  { bottom:  10px; }
+  66%  { bottom:  18px; }
+  72%  { bottom:  24px; }
+  78%  { bottom:  28px; }
+  83%  { bottom:  30px; }
+  88%  { bottom:  28px; }
+  94%  { bottom:  24px; }
+  100% { bottom:  18px; }
+}
+
+.anim-start {
+  z-index: -1;
+  position: absolute;
+  left: (600px - 420px - 4px) / 2;
+  bottom: 130px;
+  width: 420px;
+
+  &.show {
+    animation: drop-bound .7s linear forwards;
+  }
+}
+
+.anim-ready {
+  position: absolute;
+  top: 110px;
+  left: 100%;
+  transition: all 1.3s 0s linear;
+
+  &.show {
+    left: 0;
+    transform: translateX(-100%);
+  }
+}
+
+.anim-go {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.2);
+  transition: all 0.5s 0s ease-out;
+
+  &.show {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes hopup {
+  0%   { top: 100%; }
+  10%  { top:  78%; }
+  20%  { top:  59%; }
+  30%  { top:  43%; }
+  40%  { top:  30%; }
+  50%  { top:  20%; }
+  60%  { top:  13%; }
+  70%  { top:  10%; }
+  80%  { top:  13%; }
+  90%  { top:  20%; }
+  100% { top:  30%; }
+}
+
+.anim-clear {
+  position: absolute;
+  top: 100%;
+  width: 100px;
+
+  &.show {
+    animation: hopup .5s linear forwards;
+  }
+
+  &.end {
+    opacity: 0;
+    transition: opacity .75s 0s ease-out;
+  }
+}
+
+.anim-gameover {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 540px;
+  opacity: 0;
+
+  &.show {
+    opacity: 1;
+    transition: opacity 1.5s 0s ease-out;
+  }
+}
+
+.hide {
+  display: none;
+}
