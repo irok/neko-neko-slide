@@ -287,11 +287,13 @@
     // 画面を表示
     util.changePage('title', function() {
       slideIdxs.unshift(15);
-      fnReverse(function() {
-        animFlush($title, function() {
-          $img['start.png'].addClass('show');
+      setTimeout(function() {
+        fnReverse(function() {
+          animFlush($title, function() {
+            $img['start.png'].addClass('show');
+          });
         });
-      });
+      }, 1500);
     });
   }
 
