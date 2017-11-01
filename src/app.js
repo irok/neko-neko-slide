@@ -282,7 +282,7 @@
 
     // スタイルの初期化
     $title.attr('data-state', '');
-    $img['start.png'].removeClass('show');
+    $img['start.png'].removeClass('playing');
 
     // 画面を表示
     util.changePage('title', function() {
@@ -290,7 +290,7 @@
       setTimeout(function() {
         fnReverse(function() {
           animFlush($title, function() {
-            $img['start.png'].addClass('show');
+            $img['start.png'].addClass('playing');
           });
         });
       }, 1500);
@@ -341,7 +341,7 @@
 
     // スタイルの初期化
     $board.attr('data-state', '');
-    $img['gameover.png'].removeClass('show').addClass('hide');
+    $img['gameover.png'].removeClass('playing').hide();
 
     // 画面を表示
     util.changePage('game', function() {
@@ -489,17 +489,17 @@
   // アニメーション：READY
   function animReady(done) {
     done();
-    util.log('ready:hide');
-    $img['ready.png'].removeClass('hide');
+    util.log('ready:show');
+    $img['ready.png'].show();
     util.serial([
       [10, function(next) {
-        util.log('ready:show');
-        $img['ready.png'].addClass('show');
+        util.log('ready:playing');
+        $img['ready.png'].addClass('playing');
         next();
       }],
       [2000, function() {
         util.log('ready:finish');
-        $img['ready.png'].removeClass('show').addClass('hide');
+        $img['ready.png'].removeClass('playing').hide();
       }]
     ]);
 }
@@ -508,17 +508,17 @@
   // アニメーション：GO
   function animStart(done) {
     done();
-    util.log('go:hide');
-    $img['go.png'].removeClass('hide');
+    util.log('go:show');
+    $img['go.png'].show();
     util.serial([
       [10, function(next) {
-        util.log('go:show');
-        $img['go.png'].addClass('show');
+        util.log('go:playing');
+        $img['go.png'].addClass('playing');
         next();
       }],
       [1000, function() {
         util.log('go:finish');
-        $img['go.png'].removeClass('show').addClass('hide');
+        $img['go.png'].removeClass('playing').hide();
       }]
     ]);
   }
@@ -546,7 +546,7 @@
     util.serial(
       chars.map(function(ch) {
         return [100, function(next) {
-          $img['clear-' + ch + '.png'].addClass('show');
+          $img['clear-' + ch + '.png'].addClass('playing');
           next();
         }];
       }).concat([
@@ -558,7 +558,7 @@
         }],
         [1000, function() {
           chars.forEach(function(ch) {
-            $img['clear-' + ch + '.png'].removeClass('show').removeClass('end');
+            $img['clear-' + ch + '.png'].removeClass('playing').removeClass('end');
           });
           done();
         }]
@@ -617,12 +617,12 @@
       }],
       [1200, function(next) {
         util.log('gameover:ready');
-        $img['gameover.png'].removeClass('hide');
+        $img['gameover.png'].show();
         next();
       }],
       [100, function() {
-        util.log('gameover:show');
-        $img['gameover.png'].addClass('show');
+        util.log('gameover:playing');
+        $img['gameover.png'].addClass('playing');
         done();
       }]
     ]);
@@ -633,15 +633,16 @@
   //
   function init() {
     if (!images.loaded()) {
-      util.log('wait to load images...');
+      util.log('Wait to load images...');
       setTimeout(init, 100);
       return;
     }
+    util.log('All images were loaded.');
 
     // jQueryオブジェクトをキャッシュする
     $container = $('#container')
-      .append($img['ready.png'].addClass('anim-ready').addClass('hide'))
-      .append($img['go.png'].addClass('anim-go').addClass('hide'));
+      .append($img['ready.png'].addClass('anim-ready').hide())
+      .append($img['go.png'].addClass('anim-go').hide());
 
     $page = {
       title: $('#page-title')
