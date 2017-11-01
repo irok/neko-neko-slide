@@ -1,13 +1,10 @@
 {
   "name": "neko-neko-slide",
   "version": "1.0.0",
-  "scripts": {
-    "start": "gulp watch --dev",
-    "build": "gulp build",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "irok",
-  "license": "MIT",
+  "dependencies": {
+    "superstatic": "^5.0.1"
+  },
   "devDependencies": {
     "browser-sync": "^2.18.13",
     "gulp": "^3.9.1",
@@ -20,5 +17,11 @@
     "normalize.css": "^7.0.0",
     "sanitize.css": "^5.0.0"
   },
-  "dependencies": {}
+  "license": "MIT",
+  "scripts": {
+    "build": "gulp build",
+    "start": "superstatic dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "gulp watch --dev"
+  }
 }
