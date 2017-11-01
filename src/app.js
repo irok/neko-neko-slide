@@ -130,6 +130,9 @@
 
       // ------------------------------------------
       // 現在のページ
+      getCurrentPageId: function() {
+        return currentPage;
+      },
       getCurrentPage: function() {
         return $('#page-' + currentPage);
       },
@@ -273,6 +276,9 @@
 
     // 戻していく関数
     var fnReverse = function(cb) {
+      if (state.getCurrentPageId() !== 'title') {
+        return;
+      }
       if (slideIdxs.length === 0) {
         return cb();
       }
