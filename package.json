@@ -17,6 +17,9 @@
     "normalize.css": "^7.0.0",
     "sanitize.css": "^5.0.0"
   },
+  "engines": {
+    "node": "8.6.0"
+  },
   "license": "MIT",
   "scripts": {
     "build": "gulp build",

@@ -1,5 +1,19 @@
 'use strict';
 
+if (typeof game_start === 'undefined') {
+  window.game_start = window.game_end = window.show_ad = function(arg) {
+    arg.callback();
+  };
+  window.game_save = function(arg) {
+    localStorage.setItem('userData', JSON.stringify(arg.data));
+    arg.callback();
+  };
+  window.game_get_data = function(arg) {
+    var data = localStorage.getItem('userData');
+    arg.callback(data ? JSON.parse(data) : {});
+  };
+}
+
 (function() {
   // ======================================================
   // 変数宣言
@@ -49,7 +63,7 @@
   //
   var state = (function() {
     var currentPage = 'title';
-    var userData = {lastStage: 0};
+    var userData = {};
 
     return {
       // ゲーム情報
@@ -144,20 +158,23 @@
       // ------------------------------------------
       // ユーザーデータ
       getLastStage: function() {
-        return userData.lastStage;
+        return userData.lastStage || 0;
       },
       loadUserData: function(cb) {
-        var data = localStorage.getItem('userData');
-        if (data) {
-          userData = JSON.parse(data);
-        }
-        cb();
+        window.game_get_data({
+          callback: function(data) {
+            userData = data;
+            cb();
+          }
+        });
       },
       saveUserData: function(stage, score, cb) {
         userData.lastStage = stage;
         userData.highScore = score;
-        localStorage.setItem('userData', JSON.stringify(userData));
-        cb();
+        window.game_save({
+          callback: cb,
+          data: userData
+        });
       },
 
       // ------------------------------------------
@@ -358,7 +375,9 @@
         [800, animStart],
         [500, function() {
           util.shield.off();
-          gameMain();
+          window.game_start({
+            callback: gameMain
+          });
         }]
       ]);
     });
@@ -378,16 +397,18 @@
 
   // ------------------------------------------
   // ゲーム終了の共通処理
-  function gameEnd() {
+  function gameEnd(score, cb) {
     clearInterval(state.game.timerId);
     util.shield.on();
+    window.game_end({
+      callback: cb,
+      score: score
+    });
   }
 
   // ------------------------------------------
   // ゲームクリアー
   function gameClear() {
-    gameEnd();
-
     // スコア算出
     var score = state.game.score.time * timeBonus - state.game.score.move * movePenalty;
     if (score < 0) {
@@ -400,11 +421,13 @@
       lastStage = state.game.stage;
     }
 
-    state.saveUserData(lastStage, score, function() {
-      animFlush($board, function() {
-        animClear(function() {
-          animScore(function() {
-            $page.shield.one(CLICK_EVENT, showStageSelect);
+    gameEnd(score, function() {
+      state.saveUserData(lastStage, score, function() {
+        animFlush($board, function() {
+          animClear(function() {
+            animScore(function() {
+              $page.shield.one(CLICK_EVENT, showStageSelect);
+            });
           });
         });
       });
@@ -414,10 +437,10 @@
   // ------------------------------------------
   // ゲームオーバー
   function gameOver() {
-    gameEnd();
-
-    animGameOver($board, function() {
-      $page.shield.one(CLICK_EVENT, showStageSelect);
+    gameEnd(0, function() {
+      animGameOver($board, function() {
+        $page.shield.one(CLICK_EVENT, showStageSelect);
+      });
     });
   }
 
