@@ -1,48 +1,29 @@
-'use strict';
+const {task, src, dest, parallel} = require('gulp');
+const uglify = require('gulp-uglify');
+const sass = require('gulp-sass');
+const packageImporter = require('node-sass-package-importer');
 
-const gulp = require('gulp');
-const gutil = require('gulp-util');
-const plumber = require('gulp-plumber');
-const gulp_if = require('gulp-if');
-
-const isProduct = !gutil.env.dev;
-
-gulp.task('build', ['build:js', 'build:sass']);
-
-gulp.task('build:js', () => {
-  const uglify = require('gulp-uglify');
-
-  return gulp.src('src/*.js')
-    .pipe(plumber())
-    .pipe(gulp_if(isProduct, uglify({
+const buildJs = function() {
+  return src('src/*.js')
+    .pipe(uglify({
       mangle: {toplevel: true}
-    })))
-    .pipe(gulp.dest('dist/'));
-});
+    }))
+    .pipe(dest('dist'));
+};
+buildJs.displayName = 'build:js';
+task(buildJs);
 
-gulp.task('build:sass', () => {
-  const sass = require('gulp-sass');
-  const packageImporter = require('node-sass-package-importer');
-
-  return gulp.src('src/*.scss')
-    .pipe(plumber())
+const buildSass = function() {
+  return src('src/*.scss')
     .pipe(sass({
-      outputStyle: isProduct ? 'compressed' : 'expanded',
+      outputStyle: 'compressed',
       importer: packageImporter({
         extensions: ['.scss', '.css']
       })
     }))
-    .pipe(gulp.dest('dist/'));
-});
+    .pipe(dest('dist'));
+};
+buildSass.displayName = 'build:sass';
+task(buildSass);
 
-gulp.task('watch', ['build'], () => {
-  const browserSync = require('browser-sync').create();
-
-  browserSync.init({
-    files: ['dist/*.@(html|css|js)'],
-    server: 'dist'
-  });
-
-  gulp.watch('src/*.js', ['build:js']);
-  gulp.watch('src/*.scss', ['build:sass']);
-});
+exports.build = parallel(buildJs, buildSass);

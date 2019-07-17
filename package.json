@@ -3,28 +3,19 @@
   "version": "1.0.0",
   "author": "irok",
   "dependencies": {
-    "superstatic": "^5.0.1"
+    "normalize.css": "^8.0.1",
+    "sanitize.css": "^11.0.0"
   },
   "devDependencies": {
-    "browser-sync": "^2.18.13",
-    "gulp": "^3.9.1",
-    "gulp-if": "^2.0.2",
-    "gulp-plumber": "^1.1.0",
-    "gulp-sass": "^3.1.0",
-    "gulp-uglify": "^3.0.0",
-    "gulp-util": "^3.0.8",
-    "node-sass-package-importer": "^5.0.0-alpha.6",
-    "normalize.css": "^7.0.0",
-    "sanitize.css": "^5.0.0"
+    "gulp": "^4.0.2",
+    "gulp-sass": "^4.0.2",
+    "gulp-uglify": "^3.0.2",
+    "node-sass-package-importer": "^5.3.2",
+    "superstatic": "^6.0.4"
   },
-  "engines": {
-    "node": "8.6.0"
-  },
-  "license": "MIT",
   "scripts": {
     "build": "gulp build",
     "start": "superstatic dist",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "gulp watch --dev"
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
